@@ -1,0 +1,4 @@
+const cohorts = [{
+	"name": "Megalotis",
+	"calendars": ["greenfoxacademy.com_esqt5c83tcnnbe3vsfo26ktir8@group.calendar.google.com", "greenfoxacademy.com_faphcl5csi0ifk14r049f30q1k@group.calendar.google.com", "greenfoxacademy.com_cpge3atj3p9j4u845hhnk2co9g@group.calendar.google.com", "greenfoxacademy.com_e6u2c2rf3lv22msr3ork1n49ag@group.calendar.google.com", "greenfoxacademy.com_qn0bli29ejth3lojmq9o5c2fqs@group.calendar.google.com", "greenfoxacademy.com_2n8e08d7s6ot8cbs55tau1ash4@group.calendar.google.com", "greenfoxacademy.com_9au68kuouuecci402u08c179og@group.calendar.google.com", "greenfoxacademy.com_oaqo06omqi8cndrlk524jjl0b8@group.calendar.google.com", "greenfoxacademy.com_qr5ceal1vb7ghbfj3ikhl3lpsc@group.calendar.google.com", "greenfoxacademy.com_k62cld3r8l8uet6jmb6bvjeb9c@group.calendar.google.com", "greenfoxacademy.com_g6o1of5aobsld9qj5p08n0b7kk@group.calendar.google.com"]
+}];
