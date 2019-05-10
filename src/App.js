@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter, Route, Switch, Link } from "react-router-dom";
 import './App.css';
 import SalesEventOrganizerComponent from './components/sales_organizer/SalesEventOrganizerComponent';
+import CalendarUploaderComponent from './components/calendar_uploader/CalendarUploaderComponent';
 
 function Home(){
   return (
@@ -28,7 +29,7 @@ class App extends React.Component {
           <Switch>
             <Route exact path="/" component={Home} />
             <Route path="/organizer" component={SalesEventOrganizerComponent} />
-            <Route path="/contact" component={null} />
+            <Route path="/uploader" component={CalendarUploaderComponent} />
           </Switch>
         </BrowserRouter>
       </div>

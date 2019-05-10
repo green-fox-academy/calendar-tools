@@ -31,6 +31,12 @@ function getCalendarInfo(options){
   });
 }
 
+function getCalendarList(){
+  return new Promise((res, rej) => {
+    gapi.client.calendar.calendarList.list().then(list => res(list)).catch(err => rej(err));
+  });
+}
+
 async function doSomeBatchedCalendarQuery(cohortName, baseOption, calendarQueryFunction){
   const cIDs = cohorts.reduce((calendarIdArray, cohortData) => {
     return calendarIdArray || (cohortData.name === cohortName ? cohortData.calendars : null);
@@ -64,17 +70,17 @@ function getCohortCalendarInfos(cohortName){
 }
 
 
-function insertEvent(event){
+function insertEvent(targetCalendarId,event){
   return gapi.client.calendar.events.insert({
-    calendarId: 'primary',
+    calendarId: targetCalendarId,
     resource: event
   });
 }
 
-function insertEventList(eventList){
+function insertEventList(targetCalendarId, eventList){
   return new Promise((resolve, reject) => {
     var batch = gapi.client.newBatch();
-    eventList.forEach(event => batch.add(insertEvent(event)));
+    eventList.forEach(event => batch.add(insertEvent(targetCalendarId,event)));
     batch.then((response) => {resolve(response);}).catch((error)=>{reject(error);});
   });
 }
@@ -83,5 +89,7 @@ calendarFunctions = {
   getCohortCalendarEvents,
   getCohortCalendarInfos,
   insertEvent,
-  insertEventList
+  insertEventList,
+  getCalendarInfo,
+  getCalendarList
 }

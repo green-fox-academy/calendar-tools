@@ -82,3 +82,8 @@ code {
   color: red;
   font-size: 22;
 }
+
+.successText{
+  color: green;
+  font-size: 22;
+}

@@ -11,7 +11,8 @@ class SalesEventOrganizerComponent extends React.Component {
     this.state = {
       inputs:{
         cohortName: 'Megalotis',
-        days: ["2019-04-25","2019-04-26"],
+        days: [(new Date()).toISOString().split('T')[0]],
+        eventName: 'Névtelen esemény',
         teamPerSession: '1',
         dayStart:'9:00',
         dayEnd:'16:00',
@@ -21,6 +22,7 @@ class SalesEventOrganizerComponent extends React.Component {
         simplifiedAttendanceCount: '1'
       },
       labels:{
+        eventName: 'Esemény neve:',
         teamPerSession: 'Párhuzamos csapatok száma:',
         dayStart:'Nap kezdete(HH:MM):',
         dayEnd:'Nap vége(HH:MM):',
@@ -29,6 +31,7 @@ class SalesEventOrganizerComponent extends React.Component {
         breakLength: 'Szünet hossza(perc):'
       },
       onChangeFormatter:{
+        eventName: a => a,
         cohortName: a => a,
         teamPerSession: (a) => Number(a),
         dayStart: this.timeToMillisec,
@@ -167,6 +170,7 @@ class SalesEventOrganizerComponent extends React.Component {
       return eventList.concat(generatedDay.sessions.map(session => {
         const startTime = new Date(generatedDay.day+"T"+session.startTime);
         return {
+          summary: this.state.inputs.eventName,
           label: session.label,
           start:{
             dateTime: startTime.toISOString()
@@ -174,10 +178,10 @@ class SalesEventOrganizerComponent extends React.Component {
           end:{
             dateTime: new Date(startTime.getTime()+session.sessionLength*60000).toISOString()
           },
-          calendarId: this.state.calendarInfos.reduce((calId,calInfo) => {
-            if (calInfo.label === session.label){return calInfo.id;}
-            return calId;
-          },null)
+          attendees: this.state.calendarInfos.reduce((attendees,calInfo) => {
+            if (calInfo.label === session.label){attendees.push({email:calInfo.id});}
+            return attendees;
+          },[])
         }
       }));
     },[]);

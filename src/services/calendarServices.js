@@ -27,9 +27,15 @@ const getCohortCalendarInfos = window.calendarFunctions.getCohortCalendarInfos;
 
 const insertEventList = window.calendarFunctions.insertEventList;
 
+const getCalendarInfo = window.getCalendarInfo;
+
+const getCalendarList = window.getCalendarList;
+
 export {
 	runEventOrganizer,
 	getCohortList,
 	getCohortCalendarInfos,
-	insertEventList
+	insertEventList,
+	getCalendarInfo,
+	getCalendarList
 };
