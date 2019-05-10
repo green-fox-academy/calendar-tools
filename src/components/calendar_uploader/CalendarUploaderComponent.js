@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from "react-router-dom";
 import {insertEventList, getCalendarList} from '../../services/calendarServices';
 
-function readBlob(files, opt_startByte, opt_stopByte) {
+function readFile(files, opt_startByte, opt_stopByte) {
 	return new Promise((resolve, reject) => {
 		if (!files.length) {
 			alert('Please select a file!');
@@ -39,7 +39,7 @@ function CalendarEvent(props){
 		</div>
 	);
 }
-// TOREMOVE this comment is here so sublime wont mess up text coloring
+
 class CalendarUploaderComponent extends React.Component{
 	constructor(props){
 		super(props);
@@ -60,7 +60,7 @@ class CalendarUploaderComponent extends React.Component{
 			prevState.answerState = 'none';
 			return prevState;
 		});
-		readBlob(event.target.files).then((result) => {
+		readFile(event.target.files).then((result) => {
 			const calendarEvents = JSON.parse(result);
 			this.setState(prevState => {
 				prevState.calendarEvents = calendarEvents;
