@@ -1,31 +1,7 @@
 import React from 'react';
 import { Link } from "react-router-dom";
 import {insertEventList, getCalendarList} from '../../services/calendarServices';
-
-function readFile(files, opt_startByte, opt_stopByte) {
-	return new Promise((resolve, reject) => {
-		if (!files.length) {
-			alert('Please select a file!');
-			return;
-		}
-
-		var file = files[0];
-		var start = parseInt(opt_startByte) || 0;
-		var stop = parseInt(opt_stopByte) || file.size - 1;
-
-		var reader = new FileReader();
-
-		// If we use onloadend, we need to check the readyState.
-		reader.onloadend = function(evt) {
-			if (evt.target.readyState === FileReader.DONE) { // DONE == 2
-				resolve(evt.target.result);
-			}
-		};
-
-		var blob = file.slice(start, stop + 1);
-		reader.readAsBinaryString(blob);
-	});
-}
+import {readFile} from '../../utilities/utilities';
 
 function CalendarEvent(props){
 	return (
