@@ -22,24 +22,19 @@ function Home(){
   );
 }
 
-class App extends React.Component {
-  constructor(props){
-    super(props);
-  }
-  render(){
-    return (
-      <div className="App">
-        <BrowserRouter>
-          <Switch>
-            <Route exact path="/" component={Home} />
-            <Route path="/organizer" component={SalesEventOrganizerComponent} />
-            <Route path="/templategenerator" component={WeeklyTemplateGeneratorComponent} />
-            <Route path="/uploader" component={CalendarUploaderComponent} />
-          </Switch>
-        </BrowserRouter>
-      </div>
-    );
-  }
+function App(props){
+  return (
+    <div className="App">
+      <BrowserRouter>
+        <Switch>
+          <Route exact path="/" component={Home} />
+          <Route path="/organizer" component={SalesEventOrganizerComponent} />
+          <Route path="/templategenerator" component={WeeklyTemplateGeneratorComponent} />
+          <Route path="/uploader" component={CalendarUploaderComponent} />
+        </Switch>
+      </BrowserRouter>
+    </div>
+  );
 }
 
 export default App;

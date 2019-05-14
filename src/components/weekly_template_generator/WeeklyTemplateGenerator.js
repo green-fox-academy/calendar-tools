@@ -167,7 +167,7 @@ class WeeklyTemplateGeneratorComponent extends React.Component{
 			}
 			actDateTime = new Date(actDateTime.setDate(actDateTime.getDate()+1));
 		}
-		console.log(generatedEvents);
+		downloadObjectAsJson(generatedEvents,'generatedEvents');
 	}
 	render(){
 		return (
