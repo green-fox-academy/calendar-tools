@@ -1,6 +1,6 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-import {readFile,downloadObjectAsJson} from '../../utilities/utilities';
+import { readFile, downloadObjectAsJson, sanitizeTime } from '../../utilities/utilities';
 
 function EventEditor(props){
 	return (
@@ -9,8 +9,8 @@ function EventEditor(props){
 				<input value={props.summary} onChange={(event) => {props.changeField(props.index,'summary',event.target.value)}} placeholder={'Esemény neve'} />
 				<button onClick={props.remove}>Törlés</button>
 			</div>
-			<input className="timeInput" value={props.start} onChange={(event) => {props.changeField(props.index,'start',event.target.value)}} placeholder={'Esemény kezdete(HH:MM)'} />
-			<input className="timeInput" value={props.end} onChange={(event) => {props.changeField(props.index,'end',event.target.value)}} placeholder={'Esemény vége(HH:MM)'} />
+			<input className="timeInput" value={props.start} onChange={(event) => {props.changeField(props.index,'start',event.target.value)}} onBlur={(event) => {props.changeField(props.index,'start',sanitizeTime(event.target.value))}} placeholder={'Esemény kezdete(HH:MM)'} />
+			<input className="timeInput" value={props.end} onChange={(event) => {props.changeField(props.index,'end',event.target.value)}} onBlur={(event) => {props.changeField(props.index,'start',sanitizeTime(event.target.value))}} placeholder={'Esemény vége(HH:MM)'} />
 		</div>
 	);
 	//
@@ -160,8 +160,8 @@ class WeeklyTemplateGeneratorComponent extends React.Component{
 				this.state.weeklyTemplates[dayOfTheWeek].forEach((event) => {
 					generatedEvents.push({
 						summary: event.summary,
-						start: {dateTime: dayString+'T'+event.start+':00.000Z'},
-						end: {dateTime: dayString+'T'+event.end+':00.000Z'}
+						start: {dateTime: dayString+'T'+sanitizeTime(event.start)+':00.000Z'},
+						end: {dateTime: dayString+'T'+sanitizeTime(event.end)+':00.000Z'}
 					});
 				});
 			}

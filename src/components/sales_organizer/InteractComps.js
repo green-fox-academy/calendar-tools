@@ -4,7 +4,7 @@ export function InputField(props){
   return (
     <div className="sm-col6">
       <span>{props.label}</span>
-      <input value={props.value} onChange={props.onChange} />
+      <input value={props.value} onChange={props.onChange} onBlur={props.onBlur} />
     </div>
   );
 }

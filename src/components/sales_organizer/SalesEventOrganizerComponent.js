@@ -1,27 +1,27 @@
 import React from 'react';
 import { Link } from "react-router-dom";
-import {InputField, DaysSelector} from './InteractComps';
-import {ResultVisualizer} from './ResultVisualizerComp';
-import {gcd_two_numbers,downloadObjectAsJson} from '../../utilities/utilities';
-import {runEventOrganizer, getCohortCalendarInfos, getCohortList} from '../../services/calendarServices';
+import { InputField, DaysSelector } from './InteractComps';
+import { ResultVisualizer } from './ResultVisualizerComp';
+import { gcd_two_numbers, downloadObjectAsJson, sanitizeTime } from '../../utilities/utilities';
+import { runEventOrganizer, getCohortCalendarInfos, getCohortList } from '../../services/calendarServices';
 
 class SalesEventOrganizerComponent extends React.Component {
   constructor(props){
     super(props);
     this.state = {
-      inputs:{
+      inputs: {
         cohortName: 'Megalotis',
         days: [(new Date()).toISOString().split('T')[0]],
         eventName: 'Névtelen esemény',
         teamPerSession: '1',
-        dayStart:'9:00',
+        dayStart:'09:00',
         dayEnd:'16:00',
         sessionLength:'60',
         breakAfter: '120',
         breakLength: '30',
         simplifiedAttendanceCount: '1'
       },
-      labels:{
+      labels: {
         eventName: 'Esemény neve:',
         teamPerSession: 'Párhuzamos csapatok száma:',
         dayStart:'Nap kezdete(HH:MM):',
@@ -30,7 +30,7 @@ class SalesEventOrganizerComponent extends React.Component {
         breakAfter: 'Szünet nélküli idő(perc):',
         breakLength: 'Szünet hossza(perc):'
       },
-      onChangeFormatter:{
+      inputfieldToValue: {
         eventName: a => a,
         cohortName: a => a,
         teamPerSession: (a) => Number(a),
@@ -40,8 +40,12 @@ class SalesEventOrganizerComponent extends React.Component {
         breakAfter: (minute)=>{return this.timeToMillisec('0:'+minute)},
         breakLength: (minute)=>{return this.timeToMillisec('0:'+minute)},
       },
-      calculatedEvents:[],
-      calendarInfos:[],
+      fieldValueSanitizer: {
+        dayStart: sanitizeTime,
+        dayEnd: sanitizeTime,
+      },
+      calculatedEvents: [],
+      calendarInfos: [],
       errorText: '',
       cohortList: []
     };
@@ -65,7 +69,7 @@ class SalesEventOrganizerComponent extends React.Component {
     });
   }
   timeToMillisec(str){
-    const parts = str.split(':');
+    const parts = sanitizeTime(str).split(':');
     return (Number(parts[0])*60+Number(parts[1]))*60000;
   }
   millisecToTime(millis){
@@ -97,7 +101,7 @@ class SalesEventOrganizerComponent extends React.Component {
   doRun() {
     const state = this.state;
     const inputOptions = Object.keys(this.state.labels).reduce((initialOptions, key) => {
-      initialOptions[key] = state.onChangeFormatter[key](state.inputs[key]);
+      initialOptions[key] = state.inputfieldToValue[key](state.inputs[key]);
       return initialOptions;
     },{});
     inputOptions.cohortAttendanceCountParam = this.state.calendarInfos.reduce((attendanceNeeded, calInfo) => {
@@ -198,7 +202,16 @@ class SalesEventOrganizerComponent extends React.Component {
             <DaysSelector days={this.state.inputs.days} changeDay={this.changeOneDay} removeOne={this.removeOneDay} addOne={this.addOneDay}/>
           </div>
           {Object.keys(this.state.labels).map((key) => {
-            return (<InputField type="text" key={key} label={this.state.labels[key]} value={this.state.inputs[key]} onChange={(event) => {this.handleInputChange(key,event.target.value);}}/>);
+            return (<InputField
+              type="text"
+              key={key}
+              label={this.state.labels[key]}
+              value={this.state.inputs[key]}
+              onChange={(event) => {this.handleInputChange(key,event.target.value);}}
+              onBlur={(event) => {
+                const sanitizer = this.state.fieldValueSanitizer[key] ? this.state.fieldValueSanitizer[key] : a => a;
+                this.handleInputChange(key,sanitizer(event.target.value));}}
+            />);
           })}
         </div>
         <div className="col6">

@@ -46,3 +46,28 @@ export function readFile(files) {
     reader.readAsBinaryString(blob);
   });
 }
+
+export const sanitizeTime = (timeString) => {
+  if (timeString.length === 0){return '00:00';}
+  if (timeString.length === 1){
+    const hours = Number(timeString);
+    if (isNaN(hours)){return '00:00';}
+    return '0'+hours+':00';
+  }
+  if (timeString.length === 2){
+    return timeString+':00';
+  }
+  const parts = timeString.split(':');
+  if (parts.length < 2){
+    if (parts[0].length > 2){
+      parts.push(parts[0].substr(parts[0].length-2,2));
+      parts[0] = parts[0].substr(0,parts[0].length-2);
+    } else {
+      parts.push('00');
+    }
+  }
+  if (parts[0].length < 2){
+    parts[0] = '0'+parts[0];
+  }
+  return parts.join(':');
+};
