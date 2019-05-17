@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#000000" />
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
+
+    <script type="text/javascript" src="./calendarServices2.js"></script>
+    <script type="text/javascript" src="./mappingAlg.js"></script>
+    <script type="text/javascript" src="./sortingAlg2.js"></script>
+    <script type="text/javascript" src="./cohorts2.json"></script>
+    <title>React App</title>
+  </head>
+  <body>
+    <noscript>You need to enable JavaScript to run this app.</noscript>
+
+
+
+    <!--Add buttons to initiate auth sequence and sign out-->
+    <button id="authorize_button" style="display: none;">Authorize</button>
+    <button id="signout_button" style="display: none;">Sign Out</button>
+
+    <pre id="content" style="white-space: pre-wrap;"></pre>
+    <!--This stuff is for the calendar API-->
+    <script type="text/javascript">
+      // Client ID and API key from the Developer Console
+      var CLIENT_ID = '222638411302-be1euvps6416tijdtava7k0h7p7r410l.apps.googleusercontent.com';
+      var API_KEY = 'AIzaSyBo7Au0jUQ7VEm-9hgy7B72RiXnvZjQUfY';
+
+      // Array of API discovery doc URLs for APIs used by the quickstart
+      var DISCOVERY_DOCS = ["https://www.googleapis.com/discovery/v1/apis/calendar/v3/rest"];
+
+      // Authorization scopes required by the API; multiple scopes can be
+      // included, separated by spaces.
+      var SCOPES = "https://www.googleapis.com/auth/calendar";
+
+      var authorizeButton = document.getElementById('authorize_button');
+      var signoutButton = document.getElementById('signout_button');
+      var isTheUserSignedIn = false;
+
+      var requestStack = [];
+
+      async function executeRequestStack(){
+        for(let ind = 0; ind < requestStack.length; ind++){
+          const response = await requestStack[ind].fncCall.apply(null,requestStack[ind].params);
+          requestStack[ind].callback(response);
+        }
+        requestStack = [];
+      }
+
+      function makeRequest(fncCall, params){
+        return new Promise((resolve, reject) => {
+          /*
+          if (gapi !== undefined && gapi.calendar !== undefined){
+            fncCall.apply(null,params).then((response) => {resolve(response)});
+            return;
+          }
+          requestStack.push({fncCall,params,callback: (response) => {resolve(response);}});/*/
+          try{
+            if( gapi !== undefined && gapi.client === undefined){
+              fncCall.apply(null,params).then((response) => {resolve(response)}).catch((err) => {
+                requestStack.push({fncCall,params,callback: (response) => {resolve(response);}});
+              });
+              return;
+            }
+          } catch(e){
+            console.log('putting away',e);
+            requestStack.push({fncCall,params,callback: (response) => {resolve(response);}});
+          }//*/
+        });
+      }
+
+      /**
+       *  On load, called to load the auth2 library and API client library.
+       */
+      function handleClientLoad() {
+        gapi.load('client:auth2', initClient);
+      }
+
+      /**
+       *  Initializes the API client library and sets up sign-in state
+       *  listeners.
+       */
+      function initClient() {
+        gapi.client.init({
+          apiKey: API_KEY,
+          clientId: CLIENT_ID,
+          discoveryDocs: DISCOVERY_DOCS,
+          scope: SCOPES
+        }).then(function () {
+          // Listen for sign-in state changes.
+          gapi.auth2.getAuthInstance().isSignedIn.listen(updateSigninStatus);
+
+          // Handle the initial sign-in state.
+          updateSigninStatus(gapi.auth2.getAuthInstance().isSignedIn.get());
+          authorizeButton.onclick = handleAuthClick;
+          signoutButton.onclick = handleSignoutClick;
+        }, function(error) {
+          appendPre(JSON.stringify(error, null, 2));
+        });
+      }
+
+      /**
+       *  Called when the signed in status changes, to update the UI
+       *  appropriately. After a sign-in, the API is called.
+       */
+      function updateSigninStatus(isSignedIn) {
+        if (isSignedIn) {
+          executeRequestStack();
+          authorizeButton.style.display = 'none';
+          signoutButton.style.display = 'block';
+        } else {
+          authorizeButton.style.display = 'block';
+          signoutButton.style.display = 'none';
+        }
+      }
+
+      /**
+       *  Sign in the user upon button click.
+       */
+      function handleAuthClick(event) {
+        gapi.auth2.getAuthInstance().signIn();
+      }
+
+      /**
+       *  Sign out the user upon button click.
+       */
+      function handleSignoutClick(event) {
+        gapi.auth2.getAuthInstance().signOut();
+      }
+
+      const getCohortAvailability = (options) => {
+        return new Promise((resolve, reject) => {
+          getCohortCalendarEvents(options.cohortName, options.days).then((response) => {
+            Object.keys(response).forEach((calendarId) => {
+              response[calendarId].mappedTimeslots = mapEventsToAvailabilityArrays(response[calendarId].events, options);
+            });
+            resolve(response);
+          });
+        });
+      };
+
+      const runCohortSorting = (options) => {
+        return new Promise((resolve, reject) => {
+          getCohortAvailability(options).then((response) => {
+            const segmentSize = gcd_two_numbers(options.breakLength, options.sessionLength);
+            options.segmentPerSession = options.sessionLength/segmentSize;
+            options.segmentPerBreak = options.breakLength/segmentSize;
+            options.segmentBeforeBreakNeeded = options.breakAfter/segmentSize;
+            const sortedCohort = createCohortEventMapping(Object.assign({},options,{
+              cohortMappedAvailability: Object.assign({},response)
+            }));
+            const idToNameMap = Object.keys(response).reduce((mapped, key) => {
+              mapped[key] = response[key].label;
+              return mapped;
+            },{});
+            mappedSortedCohort = Object.keys(sortedCohort).reduce((mappedSorted,dayKey)=>{
+              mappedSorted[dayKey] = sortedCohort[dayKey].map((dailyCalendarCollection)=>{return dailyCalendarCollection.map((calId) => {return idToNameMap[calId];});});
+              return mappedSorted;
+            },{});
+            resolve({sorted:sortedCohort,mapped:mappedSortedCohort});
+          });
+        });
+      }
+      window.runCohortSorting = runCohortSorting;//function(){return makeRequest(runCohortSorting,arguments)};
+      window.calendarFunctions = calendarFunctions;//function(){return makeRequest(getCohortCalendarInfos,arguments)};
+      window.cohortsList = cohorts;
+
+    </script>
+
+    <script async defer src="https://apis.google.com/js/api.js"
+      onload="this.onload=function(){};handleClientLoad()"
+      onreadystatechange="if (this.readyState === 'complete') this.onload()">
+    </script>
+    <div id="root"></div>
+  </body>
+</html>
