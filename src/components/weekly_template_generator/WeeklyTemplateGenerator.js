@@ -10,7 +10,7 @@ function EventEditor(props){
 				<button onClick={props.remove}>Törlés</button>
 			</div>
 			<input className="timeInput" value={props.start} onChange={(event) => {props.changeField(props.index,'start',event.target.value)}} onBlur={(event) => {props.changeField(props.index,'start',sanitizeTime(event.target.value))}} placeholder={'Esemény kezdete(HH:MM)'} />
-			<input className="timeInput" value={props.end} onChange={(event) => {props.changeField(props.index,'end',event.target.value)}} onBlur={(event) => {props.changeField(props.index,'start',sanitizeTime(event.target.value))}} placeholder={'Esemény vége(HH:MM)'} />
+			<input className="timeInput" value={props.end} onChange={(event) => {props.changeField(props.index,'end',event.target.value)}} onBlur={(event) => {props.changeField(props.index,'end',sanitizeTime(event.target.value))}} placeholder={'Esemény vége(HH:MM)'} />
 		</div>
 	);
 	//
